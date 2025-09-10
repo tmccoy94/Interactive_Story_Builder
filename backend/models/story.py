@@ -12,6 +12,7 @@ class Story(Base):
     session_id = Column(String, index=True) # the browser session that the story was created in.
     created_at = Column(DateTime(timezone=True), server_default=func.now()) #func.now() just grabs current time
 
+    # Thist connects to the below StoryNode obj and backpopulates the Story info for each story node.
     nodes = relationship("StoryNode", back_populates="story")
 
 class StoryNode(Base):
@@ -25,4 +26,5 @@ class StoryNode(Base):
     is_winning_ending = Column(Boolean, default=False)
     options = Column(JSON, default=list)
 
-    story = relationship("Story", back_populates="nodes")
+    # this connects to above story obj and puts them into the nodes for the story in the story table
+    story = relationship("Story", back_populates="nodes") 
