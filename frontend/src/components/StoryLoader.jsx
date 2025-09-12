@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import {useParams, useNavigate} from "react-router-dom";
 import axios from "axios";
 import LoadingStatus from "./LoadingStatus";
+import StoryGame from "./StoryGame";
 
 const API_BASE_URL = "/api";
 
@@ -59,7 +60,7 @@ function StoryLoader() {
     if (story) {
         return (
             <div className="story-loader">
-                // TODO Display the story content
+                <StoryGame story={story} onNewStory={createNewStory} />
             </div>
         );
     }
