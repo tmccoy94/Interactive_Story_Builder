@@ -98,7 +98,7 @@ def get_complete_story(story_id: int, db: Session = Depends(get_db)):
 
 
 def build_complete_story_tree(db: Session, story: Story) -> CompleteStoryResponse:
-    # TODO: parse story to the usable front end format
+    
     nodes = db.query(StoryNode).filter(StoryNode.story_id == story.id).all()
 
     node_dict = {}
