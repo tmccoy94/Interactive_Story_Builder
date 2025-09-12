@@ -10,8 +10,7 @@ function StoryGame({ story, onNewStory }) {
 
     useEffect(() => {
         if (story && story.root_node) {
-            const rootNodeId = story.root_node.id;
-            setCurrentNodeId(rootNodeId);
+            setCurrentNodeId(story.root_node.id);
         }
     }, [story])
 
@@ -23,20 +22,20 @@ function StoryGame({ story, onNewStory }) {
             setIsWinningEnding(node.is_winning_ending || false);
 
             if (!node.isEnding && node.options && node.options.length > 0) {
-            setOptions(nodeOptions);
+            setOptions(node.options);
             } else {
                 setOptions([]);
             }
         }
     }, [currentNodeId, story])
 
-    const chooseOptions = (optionId) => {
+    const chooseOption = (optionId) => {
         setCurrentNodeId(optionId);
     }
 
     const restartStory = () => {
         if (story && story.root_node) {
-            setCurrentNodeId(rootNodeId);
+            setCurrentNodeId(story.root_node.id);
         }
     }
 
@@ -78,7 +77,7 @@ function StoryGame({ story, onNewStory }) {
                 </div>}
 
                 <div className="story-controls">
-                    <button onClick={restartStory} className="reset-btn">Restart Story</button>
+                    <button onClick={() => restartStory()} className="reset-btn">Restart Story</button>
                 </div>
 
                 {onNewStory && <button onClick={onNewStory} className="new-story-btn">Create New Story</button>}
