@@ -1,39 +1,40 @@
-import { useState } from "react";
+import {useState} from "react"
 
-const ThemeInput = ({ onSubmitFunction }) => {
-    const [theme, setTheme] = useState("");
-    const [error, setError] = useState("");
+function ThemeInput({onSubmit}) {
+    const [theme, setTheme]= useState("");
+    const [error, setError] = useState("")
 
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        if (!theme.trim() === "") {
-            setError("Theme cannot be empty.");
-            return;
+        if (!theme.trim()) {
+            setError("Please enter a theme name");
+            return
         }
-        onsubmit(theme);
-    }
-        
-    return (
-        <div className="theme-input-container">
-            <h2>Enter a Theme for Your Story</h2>
-            <p>Provide a theme or topic for your story. This will help guide the story generation process.</p>
 
-            <form onSubmit={handleSubmit}>
-                <div className="input-group">
-                    <input 
-                        type="text" 
-                        value={theme} 
-                        onChange={(e) => setTheme(e.target.value)} 
-                        placeholder="enter a theme: Adventure, Mystery, Sci-Fi etc." 
-                        className={error ? "input-error" : ""}
-                    />
-                    {error && <span className="error-message">{error}</span>}
-                    <button type="submit" className="generate-btn">Generate Story</button>
-                </div>
-            </form>
-            {error && <p className="error-message">{error}</p>}
-        </div>
-    )
+        onSubmit(theme);
+    }
+
+    return <div className="theme-input-container">
+        <h2>Generate Your Adventure</h2>
+        <p>Enter a theme for your interactive story</p>
+
+        <form onSubmit={handleSubmit}>
+            <div className="input-group">
+                <input
+                    type="text"
+                    value={theme}
+                    onChange={(e) => setTheme(e.target.value)}
+                    placeholder="Enter a theme (e.g. prirates, space, medieval...)"
+                    className={error ? 'error' : ''}
+                />
+                {error && <p className="error-text">{error}</p>}
+            </div>
+            <button type="submit" className='generate-btn'>
+                Generate Story
+            </button>
+        </form>
+    </div>
 }
+
 export default ThemeInput;

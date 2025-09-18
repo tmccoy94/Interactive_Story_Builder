@@ -12,12 +12,10 @@ function App() {
         <header>
           <h1>Interactive Story Generator</h1>
         </header>
-        <div>
-          <StoryGenerator/>
-        </div>
         <main>
           <Routes>
             <Route path={'/story/:id'} element={<StoryLoader />} />
+            <Route path={'/'} element={<StoryGenerator />} />
           </Routes>
         </main>
       </div>

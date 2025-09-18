@@ -1,60 +1,105 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
+import ThemeInput from "./ThemInput.jsx";
+import LoadingStatus from "./LoadingStatus.jsx";
+import { API_BASE_URL } from "../util.js";
+
 function StoryGenerator() {
-    // 1. Create state for theme input and loading/error/story states
+    const navigate = useNavigate()
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const [theme, setTheme] = useState("Pirate Party");
-    const [story, setStory] = useState(null);
+    const [theme, setTheme] = useState(null);
+    const [jobId, setJobId] = useState(null);
+    const [jobStatus, setJobStatus] = useState(null);
 
-    // 3. Handle input changes
+    useEffect(() => {
+        let pollInterval;
 
-    // 4. Handle form submission (button click)
-    // function handleSubmit(e) {
-    //     const form = e.target;
-    //     const formData = new FormData(form);
+        if (jobId && jobStatus === "processing") {
+            pollInterval = setInterval(() => {
+                pollJobStatus(jobId)
+            }, 5000) // wait 5 sec to do again
+        }
 
-    //     console.log(formData)
-    // }
+        return () => {
+            if (pollInterval) {
+                clearInterval(pollInterval)
+            }
+        }
+    }, [jobId, jobStatus])
 
-    // 2. Render a text input for the theme
+    const generateStory = async (theme) => {
+        setLoading(true)
+        setError(null)
+        setTheme(theme)
+
+        try {
+            const response = await axios.post(`${API_BASE_URL}/stories/create`, { theme })
+            const { job_id, status } = response.data
+            setJobId(job_id)
+            setJobStatus(status)
+
+            pollJobStatus(job_id)
+        } catch (e) {
+            setLoading(false)
+            setError(`Failed to generate story: ${e.message}`)
+        }
+    }
+
+    const pollJobStatus = async (id) => {
+        try {
+            const response = await axios.get(`${API_BASE_URL}/jobs/${id}`)
+            const { status, story_id, error: jobError } = response.data
+            setJobStatus(status)
+
+            if (status === "completed" && story_id) {
+                fetchStory(story_id)
+            } else if (status === "failed" || jobError) {
+                setError(jobError || "Failed to generate story")
+                setLoading(false)
+            }
+        } catch (e) {
+            if (e.response?.status !== 404) {
+                setError(`Failed to check story status: ${e.message}`)
+                setLoading(false)
+            }
+        }
+    }
+
+    const fetchStory = async (id) => {
+        try {
+            setLoading(false)
+            setJobStatus("completed")
+            navigate(`/story/${id}`)
+        } catch (e) {
+            setError(`Failed to load story ${e.message}`)
+            setLoading(false)
+        }
+    }
+
+    const reset = () => {
+        setJobId(null)
+        setJobStatus(null)
+        setError(null)
+        setTheme("")
+        setLoading(false)
+    }
+
     return (
-        <div>
-            <div style={{display: "flex", justifyContent: "center", alignItems: "center"}}>
-                <h3>
-                    Select a theme for your story: 
-                </h3>   
-            </div>
-            <div style={{display: "flex", justifyContent: "center", alignItems: "center", paddingTop: "2%"}}>
-                <input 
-                    name="StoryInput" 
-                    defaultValue={theme}
-                    onChange={e => setTheme(e.target.value)}
-                    style={{
-                        backgroundColor: "White", 
-                        color: "Black",
-                        padding: "10px",
-                        fontSize: "16px",
-                        borderRadius: "8px",
-                        width: "40%",       // fixed width
-                        boxSizing: "border-box" // makes padding included in width
-                    }}
-                />
-            </div>
-            <div style={{display: "flex", justifyContent: "center", alignItems: "center", paddingTop: "5%"}}>
-                <button onClick={() => console.log(theme)} className="new-story-btn">
-                    Create New Story
-                </button>
-            </div>
+        <div className="story-generator">
+            {error &&
+                <div className="error-message">
+                    <p>{error}</p>
+                    <button onClick={reset}>Try Again</button>
+                </div>}
+            
+            {!jobId && !error && !loading && <ThemeInput onSubmit={generateStory}/>}
+
+            {loading && <LoadingStatus theme={theme}/>}
         </div>
     )
-
-    // 5. Make POST request to backend to create story job
-
-    // 6. Poll backend for job completion and fetch generated story
-
-    // 7. Display loading, error, or story result
 }
 
 export default StoryGenerator;
