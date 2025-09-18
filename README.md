@@ -36,7 +36,7 @@ git clone https://github.com/yourusername/interactive-story-builder.git
 cd interactive-story-builder
 ```
 
-#### 2. Set up the backend
+#### 2. Set up the backend (you could also use uv)
 
 ```sh
 cd backend
